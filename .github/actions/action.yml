@@ -1,0 +1,4 @@
+name: 'Build and deploy container for your model'
+runs:
+  using: 'docker'
+  image: 'Dockerfile'
