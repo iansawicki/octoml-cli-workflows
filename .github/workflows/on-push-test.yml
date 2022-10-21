@@ -2,10 +2,22 @@ name: on-push-test
 run-name: Test on push to test.
 on: [push]
 jobs:
-  checkout:
+  build-and-deploy:
     runs-on: ubuntu-latest
+    container:
+      image: ubuntu:20.04
+      # volumes:
+      #   - /var/run/docker.sock:/var/run/docker.sock
     steps:
       - name: Checkout
         uses: actions/checkout@v3
+      # - name: Set up Docker buildx
+      #   uses: docker/setup-buildx-action@v2
+      # - name: Build Docker image to be run
+      #   uses: docker/build-push-action@v3
+      #   with:
+      #     context: ./.github/actions
+      #     push: false
+      #     tags: [deployment:local]
       - name: Run deployment and inference
-        uses: ./
+        uses: ./.github/actions
