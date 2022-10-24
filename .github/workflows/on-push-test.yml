@@ -18,7 +18,7 @@ jobs:
           pip3 install tritonclient[all]
           python3.8 ./yolov5/detect.py --weights http://localhost:8000 --source cat.jpg
       - name: Archive inference results
-        uses: actions/upload-artifacts@v3
+        uses: actions/upload-artifact@v3
         with:
           name: inference-result
           path: yolov5/runs/detect/exp
