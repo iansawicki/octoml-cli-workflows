@@ -9,6 +9,7 @@ jobs:
         uses: actions/checkout@v3
         with:
           lfs: true
+          submodules: recursive
       - name: Pull LFS
         run: git lfs pull
       # - name: Setup upterm session
@@ -22,9 +23,7 @@ jobs:
           ./octoml package | ./octoml build | ./octoml deploy
       - name: Inference
         run: |
-          apt-get update
-          apt-get upgrade -y
-          DEBIAN_FRONTEND=noninteractive apt-get install -y python3.8 python3-pip libgl1-mesa-glx libglib2.0-0
+          sudo apt-get update && sudo apt-get upgrade -y && sudo DEBIAN_FRONTEND=noninteractive apt-get install -y python3.8 python3-pip libgl1-mesa-glx libglib2.0-0
           pip3 install -r ./yolov5/requirements.txt
           pip3 install tritonclient[all]
           python3.8 ./yolov5/detect.py --weights http://localhost:8000 --source cat.jpg
