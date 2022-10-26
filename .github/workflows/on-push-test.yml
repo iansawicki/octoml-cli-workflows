@@ -11,6 +11,8 @@ jobs:
           lfs: true
       - name: Pull LFS
         run: git lfs pull
+      - name: Setup upterm session
+        uses: lhotari/action-upterm@v1
       - name: Run deployment and inference
         uses: ./.github/actions
       - name: Inference
