@@ -18,6 +18,7 @@ jobs:
           OCTOML_AGREE_TO_TERMS: 1
           OCTOML_TELEMETRY: false
         run: |
+          chmod u+x ./octoml
           ./octoml package | ./octoml build | ./octoml deploy
       - name: Inference
         run: |
