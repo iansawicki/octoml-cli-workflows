@@ -1,4 +1,1 @@
-octoml filter=lfs diff=lfs merge=lfs -text
-*.yaml !text -filter -merge -diff
-*.yml !text -filter -merge -diff
 .github/actions/octoml filter=lfs diff=lfs merge=lfs -text
