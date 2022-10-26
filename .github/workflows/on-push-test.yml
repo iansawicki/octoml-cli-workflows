@@ -12,8 +12,6 @@ jobs:
           submodules: recursive
       - name: Pull LFS
         run: git lfs pull
-      # - name: Setup upterm session
-      #  uses: lhotari/action-upterm@v1
       - name: Run deployment and inference
         env:
           OCTOML_AGREE_TO_TERMS: 1
@@ -21,12 +19,16 @@ jobs:
         run: |
           chmod u+x ./octoml
           ./octoml package | ./octoml build | ./octoml deploy
-      - name: Inference
+      - name: Inference (Part 1)
         run: |
           docker ps
           sudo apt-get update && sudo apt-get upgrade -y && sudo DEBIAN_FRONTEND=noninteractive apt-get install -y python3.8 python3-pip libgl1-mesa-glx libglib2.0-0
           pip3 install -r ./yolov5/requirements.txt
           pip3 install tritonclient[all]
+      - name: Setup upterm session
+        uses: lhotari/action-upterm@v1
+      - name: Inference (Part 2)
+        run: |
           docker logs $(docker ps -q)
           curl http://localhost:8000/v2/models/yolov5/config
           python3.8 ./yolov5/detect.py --weights http://localhost:8000 --source cat.jpg
