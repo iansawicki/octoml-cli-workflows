@@ -11,10 +11,14 @@ jobs:
           lfs: true
       - name: Pull LFS
         run: git lfs pull
-      - name: Setup upterm session
-        uses: lhotari/action-upterm@v1
+      # - name: Setup upterm session
+      #  uses: lhotari/action-upterm@v1
       - name: Run deployment and inference
-        uses: ./.github/actions
+        env:
+          OCTOML_AGREE_TO_TERMS: 1
+          OCTOML_TELEMETRY: false
+        run: |
+          octoml package | octoml build | octoml deploy
       - name: Inference
         run: |
           apt-get update
