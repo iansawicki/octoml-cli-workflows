@@ -11,6 +11,7 @@ RUN apt-get update && apt-get upgrade -y && apt-get install curl -y
 # FIXME: Debugging the pipeline. This binary below is v0.6.1, but waits 1 minute for the
 # container to start instead of 60 seconds.
 COPY octoml /octoml
+RUN chmod +x /octoml
 
 COPY entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
