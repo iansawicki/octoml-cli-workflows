@@ -1,0 +1,100 @@
+name: cloud package, deploy, and test.
+
+# cloud:deploy:
+#   stage: deploy
+#   before_script:
+#     - apt update -y && apt upgrade -y && apt install docker.io jq -y # install docker & dependencies
+#     - dockerd &
+#     - sleep 2
+#   script:
+#     ############################################################################
+#     # Transfer the artifacts from the previous stage (package).
+#     ############################################################################
+#     - mkdir $HOME/.octoml && cp -r octo_cli_db/ $HOME/.octoml/db/
+#     - echo "$PACKAGE_OUTPUT" | ./octoml build > run_id
+#     # Get the Run ID from the CLI output.
+#     - "export RUN_ID=$(awk  -F': ' '{print $2}' run_id)"
+
+#     ############################################################################
+#     # Obtain the Image SHA from the internal DB (which houses JSON files).
+#     ############################################################################
+#     - export RUN_DATA_PATH="$HOME/.octoml/db/$RUN_ID.json"
+#     # Extract the Image SHA.
+#     - export IMAGE_SHA=$(jq -r '.per_platform_data[].build_metadata.deployable_id.ID' $RUN_DATA_PATH)
+
+#     ############################################################################
+#     # Push the container to a registry. This tutorial uses GitLab Container
+#     # Registry, and our infrastructure is set up so that every image push
+#     # deploys the container to EKS.
+#     #
+#     # EDIT: Edit this section to adapt it to your own infrastructure setup.
+#     ############################################################################
+#     - export IMAGE_TAG="${CI_COMMIT_BRANCH}-${CI_COMMIT_SHORT_SHA}-$(date +%s)"
+#     - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+#     - echo "Tagging the image with $CI_REGISTRY_IMAGE:$IMAGE_TAG"
+#     - docker tag $IMAGE_SHA $CI_REGISTRY_IMAGE:$IMAGE_TAG
+#     - docker tag $IMAGE_SHA $CI_REGISTRY_IMAGE:latest
+#     - docker push $CI_REGISTRY_IMAGE:$IMAGE_TAG
+#     - docker push $CI_REGISTRY_IMAGE:latest
+#   dependencies:
+#     - common:setup
+#     - cloud:package
+#   rules:
+#     - if: $CI_COMMIT_REF_NAME == "main" && $CI_PIPELINE_SOURCE != "trigger"
+
+# cloud:test:
+#   stage: test
+#   script:
+#     - export OCTOML_INFERENCE_HOST="$CLOUD_INFERENCE_HOST"
+#     - mkdir test-artifacts
+#     - .ci/run-test.sh
+#   artifacts:
+#     paths:
+#       - ./test-artifacts
+#   rules:
+#     - if: $CI_PIPELINE_SOURCE == "trigger"
+
+on:
+  workflow_call:
+
+jobs:
+  build-and-deploy-and-infer:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          lfs: true
+          submodules: recursive
+      - name: Pull LFS
+        run: git lfs pull
+      - name: Deploy
+        env:
+          OCTOML_AGREE_TO_TERMS: 1
+          OCTOML_TELEMETRY: false
+        run: |
+          chmod u+x ./octoml
+          ./octoml package -a | ./octoml build > build_output
+          RUN_ID=$(awk  -F': ' '{print $2}' build_output)
+          export RUN_DATA_PATH="$HOME/.octoml/db/$RUN_ID.json"
+          export IMAGE_SHA=$(jq -r '.per_platform_data[].build_metadata.deployable_id.ID' $RUN_DATA_PATH)
+          export IMAGE_TAG="${CI_COMMIT_BRANCH}-${CI_COMMIT_SHORT_SHA}-$(date +%s)"
+          docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+          echo "Tagging the image with $CI_REGISTRY_IMAGE:$IMAGE_TAG"
+          docker tag $IMAGE_SHA $CI_REGISTRY_IMAGE:$IMAGE_TAG
+          docker tag $IMAGE_SHA $CI_REGISTRY_IMAGE:latest
+          docker push $CI_REGISTRY_IMAGE:$IMAGE_TAG
+          docker push $CI_REGISTRY_IMAGE:latest
+
+      - name: Inference (Part 1)
+        run: |
+          sudo apt-get update && sudo DEBIAN_FRONTEND=noninteractive apt-get install -y python3.8 python3-pip libgl1-mesa-glx libglib2.0-0
+          pip3 install -r ./yolov5/requirements.txt
+          pip3 install tritonclient[all]
+          curl http://localhost:8000/v2/models/yolov5/config
+          python3.8 ./yolov5/detect.py --weights http://localhost:8000 --source cat.jpg
+      - name: Archive inference results
+        uses: actions/upload-artifact@v3
+        with:
+          name: inference-result
+          path: yolov5/runs/detect/exp
