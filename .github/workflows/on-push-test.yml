@@ -5,5 +5,14 @@ jobs:
   build-and-deploy-and-infer:
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          lfs: true
+          submodules: recursive
+
+      - name: Pull LFS
+        run: git lfs pull
+        
       - name: cloud-example
         uses: ./.github/workflows/cloud-example.yml
