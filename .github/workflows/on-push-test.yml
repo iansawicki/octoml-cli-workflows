@@ -3,7 +3,7 @@ run-name: Test on push to test.
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: octoml/octo-cli-actions-deploy/
+  IMAGE_NAME: octoml/octo-cli-actions-deploy/yolov5s-torchscript
 
 on: [push]
 jobs:
@@ -24,7 +24,7 @@ jobs:
         with:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
-          password: ${{ secrets.CONTAINER_REGISTRY_TOKEN }}
+          password: ${{ secrets.GITHUB_TOKEN }}
       
       - name: Deploy
         env:
