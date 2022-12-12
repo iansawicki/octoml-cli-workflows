@@ -8,7 +8,7 @@ on:
   workflow_call:
 
 jobs:
-  build-and-deploy-and-infer:
+  accelerated-package:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
