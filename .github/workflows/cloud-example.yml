@@ -11,6 +11,15 @@ jobs:
   accelerated-package:
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          lfs: true
+          submodules: recursive
+
+      - name: Pull LFS
+        run: git lfs pull
+      
       - name: Log in to the Container registry
         uses: docker/login-action@v2
         with:
