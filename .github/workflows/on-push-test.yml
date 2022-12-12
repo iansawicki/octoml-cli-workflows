@@ -30,8 +30,8 @@ jobs:
         env:
           OCTOML_AGREE_TO_TERMS: 1
           OCTOML_TELEMETRY: false
+          OCTOML_ACCESS_TOKEN: ${{ secrets.OCTOML_ACCESS_TOKEN }}
         run: |
-          export OCTOML_ACCESS_TOKEN="${{ secrets.OCTOML_ACCESS_TOKEN }}"
           chmod u+x ./octoml
           ./octoml package -a | ./octoml build > build_output
           RUN_ID=$(awk  -F': ' '{print $2}' build_output)
@@ -42,19 +42,6 @@ jobs:
           docker push ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:$IMAGE_TAG
           docker tag $IMAGE_SHA ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
           docker push ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
-
-      - name: Inference (Part 1)
-        run: |
-          sudo apt-get update && sudo DEBIAN_FRONTEND=noninteractive apt-get install -y python3.8 python3-pip libgl1-mesa-glx libglib2.0-0
-          pip3 install -r ./yolov5/requirements.txt
-          pip3 install tritonclient[all]
-          curl http://localhost:8000/v2/models/yolov5/config
-          python3.8 ./yolov5/detect.py --weights http://localhost:8000 --source cat.jpg
-      - name: Archive inference results
-        uses: actions/upload-artifact@v3
-        with:
-          name: inference-result
-          path: yolov5/runs/detect/exp
 
   # cloud-example:
   #   uses: ./.github/workflows/cloud-example.yml
