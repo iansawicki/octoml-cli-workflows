@@ -3,7 +3,7 @@ run-name: Test on push to test.
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: octoml/octo-cli-actions-deploy/yolov5s-torchscript
+  IMAGE_NAME: octoml/octo-cli-actions-deploy/yolov5s-skylake-accelerated
 
 on: [push]
 jobs:
