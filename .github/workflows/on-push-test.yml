@@ -2,7 +2,7 @@ name: on-push-test
 run-name: Test on push to test.
 on: [push]
 jobs:
-  build-and-deploy-and-infer:
+  setup:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -13,6 +13,6 @@ jobs:
 
       - name: Pull LFS
         run: git lfs pull
-        
-      - name: cloud-example
-        uses: ./.github/workflows/cloud-example.yml
+
+  cloud-example:
+    uses: ./.github/workflows/cloud-example.yml
