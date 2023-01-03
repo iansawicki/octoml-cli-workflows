@@ -5,6 +5,9 @@ env:
   OCTO_CLI_STABLE_DOWNLOAD_URL: https://downloads.octoml.ai/octoml_ubuntu_v0.6.1.tar.gz
   REGISTRY: ghcr.io
   IMAGE_NAME: octoml/octo-cli-actions-deploy/yolov5s-skylake-accelerated
+  OCTOML_AGREE_TO_TERMS: 1
+  OCTOML_TELEMETRY: false
+
 
 on: [push]
 jobs:
@@ -21,8 +24,9 @@ jobs:
         run: git lfs pull
 
       - name: Download octoml CLI
+        timeout-minutes: 5
         run: |
-          curl $OCTO_CLI_STABLE_DOWNLOAD_URL --output ./octoml.tar.gz
+          curl ${{ env.OCTO_CLI_STABLE_DOWNLOAD_URL }} --output ./octoml.tar.gz
           tar -xf ./octoml.tar.gz
           chmod u+x ./octoml
           ./octoml clean
@@ -34,7 +38,7 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
       
-      - name: Deploy
+      - name: Push accelerated package to 
         env:
           OCTOML_AGREE_TO_TERMS: 1
           OCTOML_TELEMETRY: false
