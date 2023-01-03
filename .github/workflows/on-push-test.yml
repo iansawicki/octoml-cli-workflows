@@ -45,9 +45,7 @@ jobs:
           OCTOML_ACCESS_TOKEN: ${{ secrets.OCTOML_ACCESS_TOKEN }}
         run: |
           ./octoml package -a --stream | ./octoml build --stream > build_output
-          RUN_ID=$(awk  -F': ' '{print $2}' build_output)
-          export RUN_DATA_PATH="$HOME/.octoml/db/$RUN_ID.json"
-          export IMAGE_SHA=$(jq -r '.per_platform_data[].build_metadata.deployable_id.ID' $RUN_DATA_PATH)
+          export IMAGE_SHA=$(jq -r '.per_platform_data[].build_metadata.deployable_id.ID' build_output)
           export IMAGE_TAG="${GITHUB_REF_NAME}-${GITHUB_SHA}-$(date +%s)"
           docker tag $IMAGE_SHA ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:$IMAGE_TAG
           docker push ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:$IMAGE_TAG
