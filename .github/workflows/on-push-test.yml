@@ -44,7 +44,7 @@ jobs:
           OCTOML_TELEMETRY: false
           OCTOML_ACCESS_TOKEN: ${{ secrets.OCTOML_ACCESS_TOKEN }}
         run: |
-          ./octoml package -a | ./octoml build > build_output
+          ./octoml package -a | ./octoml build --stream > build_output
           RUN_ID=$(awk  -F': ' '{print $2}' build_output)
           export RUN_DATA_PATH="$HOME/.octoml/db/$RUN_ID.json"
           export IMAGE_SHA=$(jq -r '.per_platform_data[].build_metadata.deployable_id.ID' $RUN_DATA_PATH)
