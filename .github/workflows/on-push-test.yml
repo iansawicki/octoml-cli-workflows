@@ -2,6 +2,7 @@ name: on-push-test
 run-name: Test on push to test.
 
 env:
+  OCTO_CLI_STABLE_DOWNLOAD_URL: https://downloads.octoml.ai/octoml_ubuntu_v0.6.1.tar.gz
   REGISTRY: ghcr.io
   IMAGE_NAME: octoml/octo-cli-actions-deploy/yolov5s-skylake-accelerated
 
@@ -18,6 +19,13 @@ jobs:
 
       - name: Pull LFS
         run: git lfs pull
+
+      - name: Download octoml CLI
+        run: |
+          curl $OCTO_CLI_STABLE_DOWNLOAD_URL --output ./octoml.tar.gz
+          tar -xf ./octoml.tar.gz
+          chmod u+x ./octoml
+          ./octoml clean
       
       - name: Log in to the Container registry
         uses: docker/login-action@v2
@@ -32,7 +40,6 @@ jobs:
           OCTOML_TELEMETRY: false
           OCTOML_ACCESS_TOKEN: ${{ secrets.OCTOML_ACCESS_TOKEN }}
         run: |
-          chmod u+x ./octoml
           ./octoml package -a | ./octoml build > build_output
           RUN_ID=$(awk  -F': ' '{print $2}' build_output)
           export RUN_DATA_PATH="$HOME/.octoml/db/$RUN_ID.json"
