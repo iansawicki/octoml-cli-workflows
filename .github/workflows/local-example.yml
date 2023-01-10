@@ -35,7 +35,9 @@ jobs:
           ./octoml package --stream | ./octoml build --stream | ./octoml deploy --stream
       - name: Inference (Part 1)
         run: |
-          sudo apt-get update && sudo DEBIAN_FRONTEND=noninteractive apt-get install -y python3.8 python3-pip libgl1-mesa-glx libglib2.0-0
+          sudo apt install build-essential checkinstall
+          sudo apt-get update && sudo apt-get install libreadline-gplv2-dev libncursesw5-dev libssl-dev libsqlite3-dev tk-dev libgdbm-dev libc6-dev libbz2-dev libffi-dev zlib1g-dev
+          sudo DEBIAN_FRONTEND=noninteractive apt-get install -y python3.8 python3-pip libgl1-mesa-glx libglib2.0-0
           pip3 install -r ./yolov5/requirements.txt
           pip3 install tritonclient[all]
           curl http://localhost:8000/v2/models/yolov5/config
