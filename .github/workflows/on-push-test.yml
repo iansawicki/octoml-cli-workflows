@@ -7,3 +7,6 @@ jobs:
     uses: ./.github/workflows/local-example.yml
   accelerated-package:
     uses: ./.github/workflows/cloud-example.yml
+    secrets:
+      github-token: ${{ secrets.GITHUB_TOKEN }}
+      octoml-access-token: ${{ secrets.OCTOML_ACCESS_TOKEN }}
