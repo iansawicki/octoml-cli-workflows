@@ -1,10 +1,6 @@
 name: on-push-test
 run-name: Test on push to test.
 
-env:
-  REGISTRY: ghcr.io
-  IMAGE_NAME: octoml/octo-cli-workflows/yolov5s-skylake-accelerated
-
 on: [push]
 jobs:
   local-example:
@@ -14,8 +10,8 @@ jobs:
     uses: ./.github/workflows/cloud-example.yml
     if: ${{ github.ref == 'refs/heads/main' }}
     with:
-      registry-name: ${{ env.REGISTRY }}
-      image-name: ${{ env.IMAGE_NAME }}
+      registry-name: ghcr.io
+      image-name: octoml/octo-cli-workflows/yolov5s-skylake-accelerated
     secrets:
       github-token: ${{ secrets.GITHUB_TOKEN }}
       octoml-access-token: ${{ secrets.OCTOML_ACCESS_TOKEN }}
