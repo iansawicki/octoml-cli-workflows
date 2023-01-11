@@ -1,12 +1,21 @@
 name: on-push-test
 run-name: Test on push to test.
 
-on: [push]
+on:
+  push:
+    branches:
+      - main
 jobs:
-  local-package:
-    uses: ./.github/workflows/local-example.yml
-  accelerated-package:
+  cloud-example:
     uses: ./.github/workflows/cloud-example.yml
     secrets:
       github-token: ${{ secrets.GITHUB_TOKEN }}
       octoml-access-token: ${{ secrets.OCTOML_ACCESS_TOKEN }}
+
+on:
+  push:
+    branches-ignore:
+      - main
+jobs:
+  local-example:
+    uses: ./.github/workflows/local-example.yml
