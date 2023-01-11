@@ -13,7 +13,7 @@ jobs:
   cloud-example:
     uses: ./.github/workflows/cloud-example.yml
     if: ${{ github.ref == 'refs/heads/main' }}
-    inputs:
+    with:
       registry-name: ${{ env.REGISTRY }}
       image-name: ${{ env.IMAGE_NAME }}
     secrets:
