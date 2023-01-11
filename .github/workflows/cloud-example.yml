@@ -4,11 +4,16 @@ env:
   OCTO_CLI_STABLE_DOWNLOAD_URL: https://downloads.octoml.ai/octoml_ubuntu_v0.7.3.tar.gz
   OCTOML_AGREE_TO_TERMS: 1
   OCTOML_TELEMETRY: false
-  REGISTRY: ghcr.io
-  IMAGE_NAME: octoml/octo-cli-actions-deploy/yolov5s-skylake-accelerated
 
 on:
   workflow_call:
+    inputs:
+      registry-name:
+        required: true
+        type: string
+      image-name:
+        required: true
+        type: string
     secrets:
       github-token:
         required: true
@@ -36,14 +41,14 @@ jobs:
           chmod u+x ./octoml
           ./octoml clean
       
-      - name: Log in to the Container registry
+      - name: Log in to the Container Registry
         uses: docker/login-action@v2
         with:
-          registry: ${{ env.REGISTRY }}
+          registry: ${{ inputs.registry-name }}
           username: ${{ github.actor }}
           password: ${{ secrets.github-token }}
       
-      - name: Push accelerated package to 
+      - name: Push accelerated package to the Container Registry
         env:
           OCTOML_AGREE_TO_TERMS: 1
           OCTOML_TELEMETRY: false
@@ -52,7 +57,7 @@ jobs:
           ./octoml package -a --stream | ./octoml build --stream > build_output
           export IMAGE_SHA=$(jq -r '.per_platform_data[].build_metadata.deployable_id.ID' build_output)
           export IMAGE_TAG="${GITHUB_REF_NAME}-${GITHUB_SHA}-$(date +%s)"
-          docker tag $IMAGE_SHA ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:$IMAGE_TAG
-          docker push ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:$IMAGE_TAG
-          docker tag $IMAGE_SHA ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
-          docker push ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
+          docker tag $IMAGE_SHA ${{ inputs.registry-name }}/${{ inputs.image-name }}:$IMAGE_TAG
+          docker push ${{ inputs.registry-name }}/${{ inputs.image-name }}:$IMAGE_TAG
+          docker tag $IMAGE_SHA ${{ inputs.registry-name }}/${{ inputs.image-name }}:latest
+          docker push ${{ inputs.registry-name }}/${{ inputs.image-name }}:latest
