@@ -1,4 +1,4 @@
-name: cloud package, deploy, and test.
+name: accelerate package and push to container registry.
 
 env:
   OCTO_CLI_STABLE_DOWNLOAD_URL: https://downloads.octoml.ai/octoml_ubuntu_v0.7.3.tar.gz
