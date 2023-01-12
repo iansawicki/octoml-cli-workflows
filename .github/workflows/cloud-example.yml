@@ -1,0 +1,63 @@
+name: accelerate package and push to container registry.
+
+env:
+  OCTO_CLI_STABLE_DOWNLOAD_URL: https://downloads.octoml.ai/octoml_ubuntu_v0.7.3.tar.gz
+  OCTOML_AGREE_TO_TERMS: 1
+  OCTOML_TELEMETRY: false
+
+on:
+  workflow_call:
+    inputs:
+      registry-name:
+        required: true
+        type: string
+      image-name:
+        required: true
+        type: string
+    secrets:
+      github-token:
+        required: true
+      octoml-access-token:
+        required: true
+
+jobs:
+  accelerated-package:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          lfs: true
+          submodules: recursive
+
+      - name: Pull LFS
+        run: git lfs pull
+
+      - name: Download octoml CLI
+        timeout-minutes: 5
+        run: |
+          curl ${{ env.OCTO_CLI_STABLE_DOWNLOAD_URL }} --output ./octoml.tar.gz
+          tar -xf ./octoml.tar.gz
+          chmod u+x ./octoml
+          ./octoml clean
+      
+      - name: Log in to the Container Registry
+        uses: docker/login-action@v2
+        with:
+          registry: ${{ inputs.registry-name }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.github-token }}
+      
+      - name: Push accelerated package to the Container Registry
+        env:
+          OCTOML_AGREE_TO_TERMS: 1
+          OCTOML_TELEMETRY: false
+          OCTOML_ACCESS_TOKEN: ${{ secrets.octoml-access-token }}
+        run: |
+          ./octoml package -a --stream | ./octoml build --stream > build_output
+          export IMAGE_SHA=$(jq -r '.per_platform_data[].build_metadata.deployable_id.ID' build_output)
+          export IMAGE_TAG="${GITHUB_REF_NAME}-${GITHUB_SHA}-$(date +%s)"
+          docker tag $IMAGE_SHA ${{ inputs.registry-name }}/${{ inputs.image-name }}:$IMAGE_TAG
+          docker push ${{ inputs.registry-name }}/${{ inputs.image-name }}:$IMAGE_TAG
+          docker tag $IMAGE_SHA ${{ inputs.registry-name }}/${{ inputs.image-name }}:latest
+          docker push ${{ inputs.registry-name }}/${{ inputs.image-name }}:latest

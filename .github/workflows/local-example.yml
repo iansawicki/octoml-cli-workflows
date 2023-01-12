@@ -1,0 +1,48 @@
+name: local (Docker) package, deploy, and test.
+
+env:
+  OCTO_CLI_STABLE_DOWNLOAD_URL: https://downloads.octoml.ai/octoml_ubuntu_v0.7.3.tar.gz
+  OCTOML_AGREE_TO_TERMS: 1
+  OCTOML_TELEMETRY: false
+
+on:
+  workflow_call:
+
+jobs:
+  build-and-deploy-and-infer:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          lfs: true
+          submodules: recursive
+      - name: Pull LFS
+        run: git lfs pull
+      - name: Download octoml CLI
+        timeout-minutes: 5
+        run: |
+          curl ${{ env.OCTO_CLI_STABLE_DOWNLOAD_URL }} --output ./octoml.tar.gz
+          tar -xf ./octoml.tar.gz
+          chmod u+x ./octoml
+          ./octoml clean
+      - name: Run deployment and inference
+        env:
+          OCTOML_AGREE_TO_TERMS: 1
+          OCTOML_TELEMETRY: false
+        run: |
+          chmod u+x ./octoml
+          ./octoml package --stream | ./octoml build --stream | ./octoml deploy --stream
+      - name: Inference (Part 1)
+        run: |
+          sudo apt-get update && sudo apt install software-properties-common && sudo add-apt-repository ppa:deadsnakes/ppa
+          sudo DEBIAN_FRONTEND=noninteractive apt-get install -y python3.8 python3-pip libgl1-mesa-glx libglib2.0-0
+          pip3 install -r ./yolov5/requirements.txt
+          pip3 install tritonclient[all]
+          curl http://localhost:8000/v2/models/yolov5/config
+          python3.8 ./yolov5/detect.py --weights http://localhost:8000 --source cat.jpg
+      - name: Archive inference results
+        uses: actions/upload-artifact@v3
+        with:
+          name: inference-result
+          path: yolov5/runs/detect/exp
