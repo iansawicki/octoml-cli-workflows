@@ -4,6 +4,7 @@ env:
   OCTO_CLI_STABLE_DOWNLOAD_URL: https://downloads.octoml.ai/octoml_ubuntu_v0.7.3.tar.gz
   OCTOML_AGREE_TO_TERMS: 1
   OCTOML_TELEMETRY: false
+  YOLOV5S_COMMIT_SHA: c442a2e99321ebd72b242bc961824f82d46e4fd3
 
 on:
   workflow_call:
@@ -33,14 +34,12 @@ jobs:
         run: |
           chmod u+x ./octoml
           ./octoml package --stream | ./octoml build --stream | ./octoml deploy --stream
-      - name: Inference (Part 1)
-        run: |
-          sudo apt-get update && sudo apt install software-properties-common && sudo add-apt-repository ppa:deadsnakes/ppa
-          sudo DEBIAN_FRONTEND=noninteractive apt-get install -y python3.8 python3-pip libgl1-mesa-glx libglib2.0-0
-          pip3 install -r ./yolov5/requirements.txt
-          pip3 install tritonclient[all]
-          curl http://localhost:8000/v2/models/yolov5/config
-          python3.8 ./yolov5/detect.py --weights http://localhost:8000 --source cat.jpg
+          sudo apt-get update && sudo DEBIAN_FRONTEND=noninteractive apt-get install -y python3-pip libgl1-mesa-glx libglib2.0-0
+          git clone -n https://github.com/ultralytics/yolov5.git && cd yolov5 && git checkout ${{ env.YOLOV5S_COMMIT_SHA }}
+          pip3 install --no-cache-dir -r requirements.txt
+          pip3 install --no-cache-dir tritonclient[all]
+          curl http://localhost:8000/v2/models/yolov5s/config
+          python3 detect.py --weights http://localhost:8000 --source ../model-data/yolov5s/cat.jpg
       - name: Archive inference results
         uses: actions/upload-artifact@v3
         with:

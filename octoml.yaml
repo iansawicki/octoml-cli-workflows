@@ -1,5 +1,5 @@
 ---
 models:
   yolov5s:
-    path: yolov5s.onnx
+    path: ./model-data/yolov5s/yolov5s.onnx
     hardware: [skylake]
