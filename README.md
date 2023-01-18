@@ -34,10 +34,17 @@ tested locally on every push to a non-`main` branch. Cloud jobs are used in a CD
 where on every push to `main`, or a pull request is merged into `main`, the model is
 packaged and accelerated using the OctoML Platform.
 
+The model we use in this example is `yolov5s` and the path to it is 
+`~/model-data/yolov5s/yolov5s.onnx`. We also use an image (`~/model-data/yolov5s/cat.jpg`)
+to show that we can make inferences against the deployed model in `local-example.yml`.
+
+To use this pipeline on your custom use case, add a different model and sample test input(s)
+for inference to the Gitlab repo.
+
 ### Preparing Model to be Packaged by the OctoML CLI
 
 Start by updating the `octoml.yaml` file to include information about your model.
-Minimally, the model name and the path to the model must be provided.
+Minimally, the model name and the path to the model must be provided. 
 
 Refer to the [OctoML CLI Tutorials and Documentation](https://github.com/octoml/octoml-cli-tutorials)
 for information.
@@ -51,7 +58,8 @@ These are the requirements for local jobs:
 - The model file (in ONNX, TensorFlow SavedModel, TensorFlow Graphdef, or Torchscript format).
 - The `octoml.yaml` file.
 
-Edit the `Inference (Part 1)` step of the `local-example.yml` file to include the necessary setup commands and the command.
+Edit the `Run deployment and inference` step of the `local-example.yml` file to include any 
+inference code specific to your model..
 
 #### Cloud Jobs
 
@@ -61,6 +69,7 @@ If you wish to use cloud jobs, there are a few requirements:
 - To package the model and take advantage of the acceleration the OctoML Platform
   provides, `OCTOML_ACCESS_TOKEN` must be present in the environment. Obtain one in the
   [Account Dashboard](https://app.octoml.ai/account/settings) on the OctoML Platform.
+  Then [add your token as a Github Environment Variable](https://docs.github.com/en/actions/learn-github-actions/variables#creating-configuration-variables-for-a-repository).
 - The `octoml.yaml` file. Specifically, the `hardware` key must be present since it
   specifies the hardware target the model will run on. This enables the OctoML Platform to
   find the best achievable degree of acceleration.
