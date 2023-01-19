@@ -41,9 +41,9 @@ There are two jobs in the current workflows:
     addition of the `-a` flag when calling these commands, which requests OctoML
     to optimize the model's cost per inference and latency on cloud hardware.
   - In this example, the container is pushed to the GitHub Container Registry. Your existing deployment 
-    infrastructure may look different and go beyond pushing to the registry; feel free to add another 
-    step in the Cloud job to use your preferred service for launching a container from the registry to a 
-    downstream cloud service.
+    infrastructure may look different and go beyond pushing to the registry. Feel free to add another 
+    step in the Cloud job for deploying a container from the registry to generate an endpoint,
+    using your preferred downstream cloud service (e.g. AzureML, AKS).
   
 
 ## Configuring the Workflow for Use with Your Model and Your Infrastructure
