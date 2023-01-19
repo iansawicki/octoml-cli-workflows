@@ -20,16 +20,31 @@ There are two jobs in the current workflows:
   Docker instance. Test programs call the inference 
   endpoint in the local Docker instance. Because local jobs never upload your model to the
   OctoML platform, some OctoML features (such as inference cost savings) are not available.
+  Below is more detail on what each OctoML CLI command in the local job does:
+  
+  `octoml package`: packages the models specified in the `octoml.yaml` file into a 
+  Docker tarball that's ready to be built into an image on any machine that has Docker installed. 
+
+  `octoml build`: Builds a deployment-ready Docker image from the specified tarball(s). 
+  This may require a base image that ranges from 0.4-3.5GB in size, the downloading of 
+  which may take a few minutes; future runs will be nearly instantaneous because the base image 
+  will be cached.
+
+  `octoml deploy`: Deploys a Docker container to a locally hosted endpoint.
 
 - **Cloud** jobs package your model using the OctoML Platform, which lowers the inference
   latency of the model and **reduces your compute costs** when the model is used in 
   production. Cloud jobs also deploy the container to cloud providers. Test programs 
   call the inference endpoint in the deployed Docker instance.
 
-  - In this example, the container is pushed to the GitHub Container Registry.
-  - Your deployment needs and setup will likely go beyond this; refer to the Configuring the 
-    Workflow for Use with Your Model and Your Infrastructure section below for more 
-    information about configuration.
+  - `octoml package` and `octoml build` are still used as in the Local jobs. The main difference is the 
+    addition of the `-a` flag when calling these commands, which requests OctoML
+    to optimize the model's cost per inference and latency on cloud hardware.
+  - In this example, the container is pushed to the GitHub Container Registry. Your existing deployment 
+    infrastructure may look different and go beyond pushing to the registry; feel free to add another 
+    step in the Cloud job to use your preferred service for launching a container from the registry to a 
+    downstream cloud service.
+  
 
 ## Configuring the Workflow for Use with Your Model and Your Infrastructure
 
@@ -57,17 +72,17 @@ for information.
 
 #### Local Jobs
 
-These are the requirements for local jobs:
+Ensure you have the following requirements for local jobs in your repo:
 
 - The model file (in ONNX, TensorFlow SavedModel, TensorFlow Graphdef, or Torchscript format).
 - The `octoml.yaml` file.
 
-Edit the `Run deployment and inference` step of the `local-example.yml` file to include any 
-inference code specific to your model..
+Then, edit the `Run deployment and inference` step of the `local-example.yml` file to include any 
+inference code specific to your model.
 
 #### Cloud Jobs
 
-If you wish to use cloud jobs, there are a few requirements:
+Ensure you have the following requirements for cloud jobs in your repo:
 
 - The model file (in ONNX, TensorFlow SavedModel, TensorFlow Graphdef, or Torchscript format).
 - To package the model and take advantage of the acceleration the OctoML Platform
