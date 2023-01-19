@@ -4,13 +4,17 @@ The [OctoML CLI](https://try.octoml.ai/cli) allows you to easily package your mo
 deployable container, which can then be deployed onto a local Docker instance, or a cloud
 provider such as AWS.
 
-This project contains example GitHub CI/CD pipelines that make use of the OctoML CLI. We show how the CLI is used in a CI context, where your Machine Learning model is deployed and
-tested locally, and in a CD context, where the container created by the CLI is
-directly pushed into a Docker registry and then deployed on the cloud.
+This project contains example GitHub CI/CD workflow that make use of the OctoML CLI. 
+Whenever you commit a newly trained model or change in pre/post-processing code to a branch
+in your GitHub repository, your CI workflow can automatically validate end-to-end inference 
+on the new changes locally. You can also use the OctoML CLI in a CD context, such that every
+push to a `main` branch triggers OctoML to optimize the model for lower costs and lower latency
+inference on the cloud. After optimization, the CLI also builds a container and directly 
+pushes the container into a Docker registry for cloud deployment.
 
-## Pipeline and Jobs
+## Workflows and Jobs
 
-There are two jobs in the current pipeline:
+There are two jobs in the current workflows:
 - **Local** jobs enable you to quickly deploy a model and test inferences end-to-end.
   These jobs package the model and deploy an inference-ready container to a local 
   Docker instance. Test programs call the inference 
@@ -24,10 +28,10 @@ There are two jobs in the current pipeline:
 
   - In this example, the container is pushed to the GitHub Container Registry.
   - Your deployment needs and setup will likely go beyond this; refer to the Configuring the 
-    Pipeline for Use with Your Model and Your Infrastructure section below for more 
+    Workflow for Use with Your Model and Your Infrastructure section below for more 
     information about configuration.
 
-## Configuring the Pipeline for Use with Your Model and Your Infrastructure
+## Configuring the Workflow for Use with Your Model and Your Infrastructure
 
 This repository uses local jobs in a CI context, where the model is packaged, deployed and
 tested locally on every push to a non-`main` branch. Cloud jobs are used in a CD context,
@@ -38,8 +42,8 @@ The model we use in this example is `yolov5s` and the path to it is
 `~/model-data/yolov5s/yolov5s.onnx`. We also use an image (`~/model-data/yolov5s/cat.jpg`)
 to show that we can make inferences against the deployed model in `local-example.yml`.
 
-To use this pipeline on your custom use case, add a different model and sample test input(s)
-for inference to the Gitlab repo.
+To use this workflow on your custom use case, add a different model and sample test input(s)
+for inference to the GitHub repo.
 
 ### Preparing Model to be Packaged by the OctoML CLI
 
@@ -49,7 +53,7 @@ Minimally, the model name and the path to the model must be provided.
 Refer to the [OctoML CLI Tutorials and Documentation](https://github.com/octoml/octoml-cli-tutorials)
 for information.
 
-### Editing the Pipeline
+### Editing the Workflow
 
 #### Local Jobs
 
@@ -85,7 +89,7 @@ You may wish to specify which job gets triggered.
 In this example, local jobs start whenever there is a push to any non-`main` branches.
 Cloud jobs start whenever there is a push to any `main` branches.
 
-Edit the `on` clause in each job or pipeline to control how the jobs are run. Refer to
+Edit the `on` clause in each job or workflow to control how the jobs are run. Refer to
 [GitHub’s documentation](https://docs.github.com/en/actions/using-workflows/triggering-a-workflow) 
 for more information.
 
@@ -93,4 +97,4 @@ for more information.
 
 - [OctoML CLI Tutorials and Documentation](https://github.com/octoml/octoml-cli-tutorials)
 - [Triton Client Libraries and Examples](https://github.com/triton-inference-server/client)
-- [Pipelines for this Repository](https://github.com/octoml/octoml-cli-workflows/actions)
+- [Workflows for this Repository](https://github.com/octoml/octoml-cli-workflows/actions)
