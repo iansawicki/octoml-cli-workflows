@@ -8,7 +8,7 @@ This project contains example GitHub CI/CD workflow that make use of the OctoML 
 Whenever you commit a newly trained model or change in pre/post-processing code to a branch
 in your GitHub repository, your CI workflow can automatically validate end-to-end inference 
 on the new changes locally. You can also use the OctoML CLI in a CD context, such that every
-push to a `main` branch triggers OctoML to optimize the model for lower costs and lower latency
+push to a `main` branch triggers OctoML to optimize the model for cheaper and lower-latency
 inference on the cloud. After optimization, the CLI also builds a container and directly 
 pushes the container into a Docker registry for cloud deployment.
 
@@ -22,7 +22,7 @@ There are two jobs in the current workflows:
   OctoML platform, some OctoML features (such as inference cost savings) are not available.
   Below is more detail on what each OctoML CLI command in the local job does:
   
-  `octoml package`: packages the models specified in the `octoml.yaml` file into a 
+  `octoml package`: Packages the models specified in the `octoml.yaml` file into a 
   Docker tarball that's ready to be built into an image on any machine that has Docker installed. 
 
   `octoml build`: Builds a deployment-ready Docker image from the specified tarball(s). 
@@ -37,14 +37,16 @@ There are two jobs in the current workflows:
   production. Cloud jobs also deploy the container to cloud providers. Test programs 
   call the inference endpoint in the deployed Docker instance.
 
-  - `octoml package` and `octoml build` are still used as in the Local jobs. The main difference is the 
+  - `octoml package` and `octoml build` are used, as in the Local jobs. The main difference is the 
     addition of the `-a` flag when calling these commands, which requests OctoML
     to optimize the model's cost per inference and latency on cloud hardware.
   - In this example, the container is pushed to the GitHub Container Registry. Your existing deployment 
     infrastructure may look different and go beyond pushing to the registry. Feel free to add another 
     step in the Cloud job for deploying a container from the registry to generate an endpoint,
     using your preferred downstream cloud service (e.g. AzureML, AKS).
-  
+ 
+Refer to the [OctoML CLI Tutorials and Documentation](https://github.com/octoml/octoml-cli-tutorials)
+for more detailed information about the CLI.
 
 ## Configuring the Workflow for Use with Your Model and Your Infrastructure
 
@@ -60,14 +62,6 @@ to show that we can make inferences against the deployed model in `local-example
 To use this workflow on your custom use case, add a different model and sample test input(s)
 for inference to the GitHub repo.
 
-### Preparing Model to be Packaged by the OctoML CLI
-
-Start by updating the `octoml.yaml` file to include information about your model.
-Minimally, the model name and the path to the model must be provided. 
-
-Refer to the [OctoML CLI Tutorials and Documentation](https://github.com/octoml/octoml-cli-tutorials)
-for information.
-
 ### Editing the Workflow
 
 #### Local Jobs
@@ -75,7 +69,9 @@ for information.
 Ensure you have the following requirements for local jobs in your repo:
 
 - The model file (in ONNX, TensorFlow SavedModel, TensorFlow Graphdef, or Torchscript format).
-- The `octoml.yaml` file.
+- The `octoml.yaml` file. Make sure you update the `octoml.yaml` file to include information about your model.
+Minimally, the model name and the path to the model must be provided. If your model is of TensorFlow Graphdef/Torchscript
+format and has dynamic input shapes, you must also specify the input shapes.
 
 Then, edit the `Run deployment and inference` step of the `local-example.yml` file to include any 
 inference code specific to your model.
@@ -85,21 +81,19 @@ inference code specific to your model.
 Ensure you have the following requirements for cloud jobs in your repo:
 
 - The model file (in ONNX, TensorFlow SavedModel, TensorFlow Graphdef, or Torchscript format).
-- To package the model and take advantage of the acceleration the OctoML Platform
-  provides, `OCTOML_ACCESS_TOKEN` must be present in the environment. Obtain one in the
-  [Account Dashboard](https://app.octoml.ai/account/settings) on the OctoML Platform.
-  Then [add your token as a Github Environment Variable](https://docs.github.com/en/actions/learn-github-actions/variables#creating-configuration-variables-for-a-repository).
-- The `octoml.yaml` file. Specifically, the `hardware` key must be present since it
-  specifies the hardware target the model will run on. This enables the OctoML Platform to
-  find the best achievable degree of acceleration.
+- `OCTOML_ACCESS_TOKEN` must be present in the environment. Obtain one by 
+  signing up for an OctoML account in the bottom of this [page](https://try.octoml.ai/cli/), then
+  generating a token on your [Account Dashboard](https://app.octoml.ai/account/settings) on the OctoML Platform.
+  Afterwards, [add your token as a Github Environment Variable](https://docs.github.com/en/actions/learn-github-actions/variables#creating-configuration-variables-for-a-repository).
+- The `octoml.yaml` file. Make sure you update the `octoml.yaml` file to include information about your model.
+  Minimally, the model name and the path to the model must be provided. If your model is dynamically shaped,
+  you also need to specify the model's input shapes. Additionally, the `hardware` key must be 
+  present since it specifies the hardware target you want OctoML to optimize the model for.
 
-Edit the `octoml.yaml` file and adjust the adjust the parameters used to call `cloud-example.yml`. 
-You may wish to revise the section in `cloud-example.yml` where the Docker image produced by 
-the OctoML CLI is pushed to the container registry and adapt it to your setup.
+If you use a container registry outside of GitHub, you may also wish to revise the section in `cloud-example.yml`
+where the Docker image produced by the OctoML CLI is pushed to the GitHub container registry.
 
 ### Editing Triggers to Use Local or Cloud Jobs
-
-You may wish to specify which job gets triggered.
 
 In this example, local jobs start whenever there is a push to any non-`main` branches.
 Cloud jobs start whenever there is a push to any `main` branches.
