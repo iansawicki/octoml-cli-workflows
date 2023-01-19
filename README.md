@@ -26,23 +26,19 @@ There are two jobs in the current workflows:
   Docker tarball that's ready to be built into an image on any machine that has Docker installed. 
 
   `octoml build`: Builds a deployment-ready Docker image from the specified tarball(s). 
-  This may require a base image that ranges from 0.4-3.5GB in size, the downloading of 
-  which may take a few minutes; future runs will be nearly instantaneous because the base image 
-  will be cached.
 
   `octoml deploy`: Deploys a Docker container to a locally hosted endpoint.
 
 - **Cloud** jobs package your model using the OctoML Platform, which lowers the inference
   latency of the model and **reduces your compute costs** when the model is used in 
-  production. Cloud jobs also deploy the container to cloud providers. Test programs 
-  call the inference endpoint in the deployed Docker instance.
+  production. Cloud jobs also deploy the container to cloud providers.
 
   - `octoml package` and `octoml build` are used, as in the Local jobs. The main difference is the 
     addition of the `-a` flag when calling these commands, which requests OctoML
     to optimize the model's cost per inference and latency on cloud hardware.
   - In this example, the container is pushed to the GitHub Container Registry. Your existing deployment 
     infrastructure may look different and go beyond pushing to the registry. Feel free to add another 
-    step in the Cloud job for deploying a container from the registry to generate an endpoint,
+    step in the Cloud job for deploying a container from the registry to generate a remote endpoint,
     using your preferred downstream cloud service (e.g. AzureML, AKS).
  
 Refer to the [OctoML CLI Tutorials and Documentation](https://github.com/octoml/octoml-cli-tutorials)
