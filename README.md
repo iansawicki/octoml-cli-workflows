@@ -39,7 +39,7 @@ The model we use in this example is `yolov5s` and the path to it is
 to show that we can make inferences against the deployed model in `local-example.yml`.
 
 To use this pipeline on your custom use case, add a different model and sample test input(s)
-for inference to the Gitlab repo.
+for inference to the Github repo.
 
 ### Preparing Model to be Packaged by the OctoML CLI
 
