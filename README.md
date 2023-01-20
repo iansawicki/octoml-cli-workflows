@@ -28,6 +28,8 @@ There are two jobs in the current workflows:
   `octoml build`: Builds a deployment-ready Docker image from the specified tarball(s). 
 
   `octoml deploy`: Deploys a Docker container to a locally hosted endpoint.
+  
+  The diagram below shows an overview of the user journey for Local jobs: ![Local UX](/workflow-diagrams/Local-job.png)
 
 - **Cloud** jobs package your model using the OctoML Platform, which lowers the inference
   latency of the model and **reduces your compute costs** when the model is used in 
@@ -40,6 +42,7 @@ There are two jobs in the current workflows:
     infrastructure may look different and go beyond pushing to the registry. Feel free to add another 
     step in the Cloud job for deploying a container from the registry to generate a remote endpoint,
     using your preferred downstream cloud service (e.g. AzureML, AKS).
+  - The diagram below shows an overview of the user journey for Cloud jobs: ![Cloud UX](/workflow-diagrams/Cloud-job.png)
  
 Refer to the [OctoML CLI Tutorials and Documentation](https://github.com/octoml/octoml-cli-tutorials)
 for more detailed information about the CLI.
