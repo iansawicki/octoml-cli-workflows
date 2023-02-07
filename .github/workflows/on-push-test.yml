@@ -1,11 +1,8 @@
 name: on-push-test
-run-name: Test on push to test.
+run-name: Test on push
 
 on: [push]
 jobs:
-  local-example:
-    uses: ./.github/workflows/local-example.yml
-    if: ${{ github.ref != 'refs/heads/main' }}
   cloud-example:
     uses: ./.github/workflows/cloud-example.yml
     if: ${{ github.ref == 'refs/heads/main' }}
