@@ -7,7 +7,7 @@ code to `main`, the workflow triggers OctoML CLI to optimize the model
 for cheaper and lower-latency inference on the cloud. After optimization, the CLI also builds a container 
 and directly pushes the container into a Docker registry for cloud deployment.
 
-## Workflow and Jobs
+## How It Works
 The cloud-example.yml file specifies jobs that use the OctoML CLI to optimize your model for cloud inference.
   - `octoml package -a`: Requests OctoML to optimize your model's cost per inference and latency on cloud hardware.
      Packages the model into a  Docker tarball that's ready to be built into an image on any machine that has Docker installed.
@@ -21,7 +21,7 @@ The cloud-example.yml file specifies jobs that use the OctoML CLI to optimize yo
 Refer to the [OctoML CLI Tutorials and Documentation](https://github.com/octoml/octoml-cli-tutorials)
 for more detailed information about the CLI.
 
-## Configuring the Workflow for Use with Your Model and Your Infrastructure
+## Adapting the Workflow for Use with Your Model and Your Infrastructure
 
 The model we use in this example is `yolov5s` and the path to it is 
 `~/model-data/yolov5s/yolov5s.onnx`. To use this workflow on your custom use case, 
